@@ -37,8 +37,17 @@ We set up and start TCP listener.
 `print 'Serving HTTP on port %s ...' % PORT`
 
 `while True:`
+
 `client_connection, client_address = listen_socket.accept()`
+
+Passively accept TCP client connection, waiting until connection arrives (blocking).
+
 `request = client_connection.recv(1024)`
+
+Receives TCP message, reading 1024 bytes at most, blocking if no data is waiting to be read. If you don't read all data another call to socket.recv wont block.
+
+https://www.scottklement.com/rpg/socktut/nonblocking.html - blocking vs non-blocking sockets
+
 `print request`
 
 http_response = """\
@@ -48,4 +57,17 @@ Hello, World!
 """
 
 `client_connection.sendall(http_response)`
+
+socket.send() transmits TCP messages. It can send less bytes than you requested, but returns the number of bytes sent.
+
+socket.sendall() is a high-level Python-only method that sends the entire buffer you pass it or throws an exception. You use this when you are using TCP with blocking sockets and don't want to be bothered by the internals.
+
 `client_connection.close()`
+
+Closes the socket.
+
+
+
+So, before your browser can send a http request through, it must first establish a TCP connection with the server. It then sends the HTTP request over the TCP connection and waits for a HTTP response back. To establish a TCP connection they use sockets.
+
+To sum up: The web server creates a listening socket and starts accepting new connections in a loop. The client initiates a TCP connection and when successfully established  sends a HTTP request to the server which responds with a HTTP response.
